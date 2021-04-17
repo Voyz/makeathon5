@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 
-import logo from './logo.svg';
 import './App.css';
 
 import Button from 'react-bootstrap/Button';
@@ -22,8 +21,8 @@ function App() {
 	const [outputValue, setOutputValue] = useState('This will be the output.');
 	const [radioValue, setRadioValue] = useState('1');
 	const radios = [
-		{name: 'Mode 1', value: '1'},
-		{name: 'Mode 2', value: '2'},
+		{name: 'Summary', value: '1'},
+		{name: 'List', value: '2'},
 	];
 
 	const handleSubmit = event => {
