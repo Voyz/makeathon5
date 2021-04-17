@@ -11,3 +11,14 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.main_container.main_container {
+    padding: 100px;
+}
+
+
+.team_logo{
+    width:200px;
+    height:200px;
+}
+
