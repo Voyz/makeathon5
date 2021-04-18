@@ -178,7 +178,17 @@ function App() {
 						</div>
 					</Col>
 				</Row>
+				{showPassphraseError &&
+				<Row>
+					<Col>
+						<Alert variant='danger' onClose={() => setShowPassphraseError(false)} dismissible>
+							Invalid passphrase.
+						</Alert>
+					</Col>
+				</Row>
+				}
 			</Container>
+
 			<Container fluid
 					   className="main_container">
 				{/*<Row>*/}
@@ -247,15 +257,6 @@ function App() {
 
 					</Col>
 				</Row>
-				{showPassphraseError &&
-				<Row>
-					<Col>
-						<Alert variant='danger'>
-							Invalid passphrase.
-						</Alert>
-					</Col>
-				</Row>
-				}
 			</Container>
 		</div>
 	);
