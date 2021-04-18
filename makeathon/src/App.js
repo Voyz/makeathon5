@@ -33,7 +33,7 @@ function App() {
 	const [passphrase, setPassphrase] = useState('');
 	const [showPassphraseError, setShowPassphraseError] = useState(false);
 	const [inputValue, setInputValue] = useState('Some text will be written here as input.');
-	const [outputValue, setOutputValue] = useState('This will be the output.');
+	const [outputValue, setOutputValue] = useState('');
 	const [radioValue, setRadioValue] = useState('1');
 
 	// const params = getPrompts();
@@ -54,7 +54,7 @@ function App() {
 		console.log(event);
 		console.log(inputValue);
 		console.log(radioValue);
-		makeRequest(apiUrl, inputValue, radioValue);
+		newRequest(apiUrl, inputValue, radioValue);
 	};
 	const inputChange = event => {
 		setInputValue(event.target.value);
@@ -68,48 +68,20 @@ function App() {
 		return decrypted;
 	};
 
-	const summaryRequest = async (url, inputText, mode) => {
-		console.log('Request:', inputText, mode);
-
-		const options = {
-			headers: {
-				'Content-type': 'application/json; charset=UTF-8',
-				'Authorization': `Bearer ${decodeApiKey(process.env.REACT_APP_API_KEY_ENCRYPTED)}`
-			}
-		};
-
-		if (options.headers.Authorization === 'Bearer ') {
-			setShowPassphraseError(true);
-			console.error('Invalid passphrase.');
-			return;
-		} else {
-			setShowPassphraseError(false);
-		}
-		console.log(process.env.REACT_APP_API_KEY);
-		console.log(options.headers.Authorization);
-
-		try {
-			const prompt = `${params.summary.body}\nMessage: ${inputText}\nSummary:`;
-
-			const response = await axios.post(url, {
-				"prompt": prompt,
-				"engine": params.summary.engine,
-				"temperature": params.summary.temperature,
-				"max_tokens": params.summary.max_tokens,
-				"top_p": params.summary.top_p,
-				"frequency_penalty": params.summary.frequency_penalty,
-				"presence_penalty": params.summary.presence_penalty,
-				"stop": params.summary.stop
-			}, options);
-
-			handleResponse(response);
-
-		} catch (e) {
-			console.error(e);
-		}
+	const executeRequest = async (url, options, prompt, requestParams) => {
+		return await axios.post(url, {
+			"prompt": prompt,
+			"engine": requestParams.engine,
+			"temperature": requestParams.temperature,
+			"max_tokens": requestParams.max_tokens,
+			"top_p": requestParams.top_p,
+			"frequency_penalty": requestParams.frequency_penalty,
+			"presence_penalty": requestParams.presence_penalty,
+			"stop": requestParams.stop
+		}, options);
 	};
 
-	const makeRequest = async (url, inputText, mode) => {
+	const newRequest = async (url, inputText, mode) => {
 		console.log('Request:', inputText, mode);
 
 		const options = {
@@ -129,27 +101,49 @@ function App() {
 		console.log(process.env.REACT_APP_API_KEY);
 		console.log(options.headers.Authorization);
 
+		const maxTokens = inputText.length / 4;
+
+
+		const prompt = `${params.summary.body}\nMessage: ${inputText}\nSummary:`;
+
 		try {
-			// const response = await axios.post(url,{
-			// 	inputText: inputText,
-			// 	mode: mode
-			// }, options);
-			const response = await axios.post(url, {
-				"prompt": inputText,
-				"engine": "davinci",
-				"temperature": 0.25,
-				"max_tokens": 120,
-				"top_p": 1,
-				"frequency_penalty": 0.4,
-				"presence_penalty": 0,
-				"stop": ["\n"]
-			}, options);
+			var summaryResponse = await executeRequest(url, options, prompt, params.summary)
+		} catch (err) {
+			console.error(`Error during summary request: ${url} `);
+			return false
+		} finally {
+			const data = summaryResponse.data;
+			if (mode === 2) {
+				data.split('.?!')
+			}
+			handleResponse(summaryResponse);
 
-			handleResponse(response);
-
-		} catch (e) {
-			console.error(e);
 		}
+
+		var sentimentResponse = await executeRequest(url, options, prompt, params.sentiment);
+
+
+		// try {
+		// 	// const response = await axios.post(url,{
+		// 	// 	inputText: inputText,
+		// 	// 	mode: mode
+		// 	// }, options);
+		// 	const response = await axios.post(url, {
+		// 		"prompt": inputText,
+		// 		"engine": "davinci",
+		// 		"temperature": 0.25,
+		// 		"max_tokens": 120,
+		// 		"top_p": 1,
+		// 		"frequency_penalty": 0.4,
+		// 		"presence_penalty": 0,
+		// 		"stop": ["\n"]
+		// 	}, options);
+		//
+		// 	handleResponse(response);
+		//
+		// } catch (e) {
+		// 	console.error(e);
+		// }
 
 
 	};
@@ -161,75 +155,96 @@ function App() {
 	return (
 		<div className="App">
 			<Container fluid
-					   className="main_container">
-				<Row>
+					   className="">
+				<Row className="align-items-center">
 					<Col>
-						<img src="/gpteam5_logo.png"
-							 className="roundedCircle team_logo"
-							 alt="team_logo"/>
+						<div className="voiceline_logo_container">
+							<img src="/voiceline_transparent.webp"
+								 alt="voiceline logo"
+								 className="voiceline_logo"/>
+						</div>
+					</Col>
+					<Col>
+						<div className="passphrase_input">
+							<InputGroup size="sm"
+										className="">
+								<InputGroup.Prepend>
+									<InputGroup.Text id="inputGroup-sizing-sm">Passphrase</InputGroup.Text>
+								</InputGroup.Prepend>
+								<FormControl aria-label="Small"
+											 aria-describedby="inputGroup-sizing-sm"
+											 onChange={(e) => setPassphrase(e.currentTarget.value)}/>
+							</InputGroup>
+						</div>
 					</Col>
 				</Row>
+			</Container>
+			<Container fluid
+					   className="main_container">
+				{/*<Row>*/}
+				{/*	<Col>*/}
+				{/*		<img src="/gpteam5_logo.png"*/}
+				{/*			 className="roundedCircle team_logo"*/}
+				{/*			 alt="team_logo"/>*/}
+				{/*	</Col>*/}
+				{/*</Row>*/}
 
 				<Row className="mb-4">
 					<Col>
-						<Form onSubmit={handleSubmit}>
-							<Row>
-								<Col>
-									<Form.Group controlId="exampleForm.ControlTextarea1">
-										<Form.Label>Input your full text here:</Form.Label>
-										<Form.Control as="textarea"
-													  rows={3}
-													  value={inputValue}
-													  onChange={inputChange}/>
-									</Form.Group>
-								</Col>
-							</Row>
-							<Row>
-								<Col>
-									<ButtonGroup toggle>
-										{radios.map((radio, idx) => (
-											<ToggleButton
-												key={idx}
-												type="radio"
-												variant="secondary"
-												name="radio"
-												value={radio.value}
-												checked={radioValue === radio.value}
-												onChange={(e) => setRadioValue(e.currentTarget.value)}
-											>
-												{radio.name}
-											</ToggleButton>
-										))}
-									</ButtonGroup>
-								</Col>
-								<Col>
-									<Button variant="primary"
-											type="submit">Submit</Button>
-								</Col>
-							</Row>
-						</Form>
+						<Card className="custom_card">
+
+							<Form onSubmit={handleSubmit}>
+								<Row>
+									<Col>
+										<Form.Group controlId="exampleForm.ControlTextarea1">
+											<Form.Label>Input your full text here:</Form.Label>
+											<Form.Control as="textarea"
+														  rows={3}
+														  value={inputValue}
+														  onChange={inputChange}/>
+										</Form.Group>
+									</Col>
+								</Row>
+								<Row>
+									<Col>
+										<ButtonGroup toggle>
+											{radios.map((radio, idx) => (
+												<ToggleButton
+													key={idx}
+													type="radio"
+													variant="secondary"
+													name="radio"
+													value={radio.value}
+													checked={radioValue === radio.value}
+													onChange={(e) => setRadioValue(e.currentTarget.value)}
+												>
+													{radio.name}
+												</ToggleButton>
+											))}
+										</ButtonGroup>
+									</Col>
+									<Col>
+										<Button variant="primary"
+												type="submit">Submit</Button>
+									</Col>
+								</Row>
+							</Form>
+						</Card>
 					</Col>
 				</Row>
-
+				{outputValue !== '' &&
 				<Row className="mb-5">
 					<Col>
-						<Card>
+						<Card className="custom_card">
 							<Card.Body>{outputValue}</Card.Body>
 						</Card>
 					</Col>
 				</Row>
+				}
 
 				<Row>
 					<Col>
-						<InputGroup size="sm"
-									className="mb-3">
-							<InputGroup.Prepend>
-								<InputGroup.Text id="inputGroup-sizing-sm">Passphrase</InputGroup.Text>
-							</InputGroup.Prepend>
-							<FormControl aria-label="Small"
-										 aria-describedby="inputGroup-sizing-sm"
-										 onChange={(e) => setPassphrase(e.currentTarget.value)}/>
-						</InputGroup>
+
 					</Col>
 				</Row>
 				{showPassphraseError &&
