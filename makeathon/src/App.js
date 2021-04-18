@@ -20,10 +20,10 @@ import Alert from 'react-bootstrap/Alert';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'https://jsonplaceholder.typicode.com/posts';
+const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'https://jsonplaceholder.typicode.com/posts';
 
 // const apiUrl = 'https://api.openai.com/v1/engines/[ENGINE]/completions';
-const apiUrl = 'https://jsonplaceholder.typicode.com/posts?[ENGINE]';
+// const apiUrl = 'https://jsonplaceholder.typicode.com/posts?[ENGINE]';
 
 let params = null;
 getParams().then(p => {
