@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 
 import './App.css';
 
-import {getPrompts} from './prompts.js'
+import {getParams} from './params.js'
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -24,6 +24,10 @@ const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : '
 
 // const apiUrl = 'https://api.openai.com/v1/engines/davinci/completions';
 
+let params = null;
+getParams().then(p => {
+	params = p;
+});
 
 function App() {
 	const [passphrase, setPassphrase] = useState('');
@@ -32,11 +36,11 @@ function App() {
 	const [outputValue, setOutputValue] = useState('This will be the output.');
 	const [radioValue, setRadioValue] = useState('1');
 
-	const prompts = getPrompts();
-	prompts.then(prompts => {
-		console.log(prompts.summary);
-		console.log(prompts.sentiment);
-	});
+	// const params = getPrompts();
+	// params.then(params => {
+	// 	console.log(params.summary);
+	// 	console.log(params.sentiment);
+	// });
 
 
 	const radios = [
@@ -62,6 +66,47 @@ function App() {
 		const decrypted = CryptoJS.AES.decrypt(apiKey, passphrase).toString(CryptoJS.enc.Utf8);
 		console.log(decrypted);
 		return decrypted;
+	};
+
+	const summaryRequest = async (url, inputText, mode) => {
+		console.log('Request:', inputText, mode);
+
+		const options = {
+			headers: {
+				'Content-type': 'application/json; charset=UTF-8',
+				'Authorization': `Bearer ${decodeApiKey(process.env.REACT_APP_API_KEY_ENCRYPTED)}`
+			}
+		};
+
+		if (options.headers.Authorization === 'Bearer ') {
+			setShowPassphraseError(true);
+			console.error('Invalid passphrase.');
+			return;
+		} else {
+			setShowPassphraseError(false);
+		}
+		console.log(process.env.REACT_APP_API_KEY);
+		console.log(options.headers.Authorization);
+
+		try {
+			const prompt = `${params.summary.body}\nMessage: ${inputText}\nSummary:`;
+
+			const response = await axios.post(url, {
+				"prompt": prompt,
+				"engine": params.summary.engine,
+				"temperature": params.summary.temperature,
+				"max_tokens": params.summary.max_tokens,
+				"top_p": params.summary.top_p,
+				"frequency_penalty": params.summary.frequency_penalty,
+				"presence_penalty": params.summary.presence_penalty,
+				"stop": params.summary.stop
+			}, options);
+
+			handleResponse(response);
+
+		} catch (e) {
+			console.error(e);
+		}
 	};
 
 	const makeRequest = async (url, inputText, mode) => {
