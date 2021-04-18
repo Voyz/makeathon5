@@ -67,3 +67,11 @@ code {
     max-width:300px;
     margin-left: auto;
 }
+
+.sentiment {
+    margin-top:10px;
+}
+
+.output_card{
+    text-align:left;
+}

@@ -20,20 +20,24 @@ import Alert from 'react-bootstrap/Alert';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'https://jsonplaceholder.typicode.com/posts';
+// const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'https://jsonplaceholder.typicode.com/posts';
 
-// const apiUrl = 'https://api.openai.com/v1/engines/davinci/completions';
+// const apiUrl = 'https://api.openai.com/v1/engines/[ENGINE]/completions';
+const apiUrl = 'https://jsonplaceholder.typicode.com/posts?[ENGINE]';
 
 let params = null;
 getParams().then(p => {
 	params = p;
 });
 
+// console.log(CryptoJS.AES.encrypt('oiregnierngweronrg', 'asdf').toString());
+
 function App() {
 	const [passphrase, setPassphrase] = useState('');
 	const [showPassphraseError, setShowPassphraseError] = useState(false);
 	const [inputValue, setInputValue] = useState('Some text will be written here as input.');
 	const [outputValue, setOutputValue] = useState('');
+	const [sentiment, setSentiment] = useState('');
 	const [radioValue, setRadioValue] = useState('1');
 
 	// const params = getPrompts();
@@ -61,24 +65,27 @@ function App() {
 	};
 
 	const decodeApiKey = (apiKey) => {
-		console.log(apiKey);
-		console.log(passphrase);
+		// console.log(apiKey);
+		// console.log(passphrase);
 		const decrypted = CryptoJS.AES.decrypt(apiKey, passphrase).toString(CryptoJS.enc.Utf8);
-		console.log(decrypted);
+		// console.log(decrypted);
 		return decrypted;
 	};
 
-	const executeRequest = async (url, options, prompt, requestParams) => {
-		return await axios.post(url, {
+	const executeRequest = async (url, options, prompt, requestParams, maxTokens) => {
+		const data = {
 			"prompt": prompt,
-			"engine": requestParams.engine,
-			"temperature": requestParams.temperature,
-			"max_tokens": requestParams.max_tokens,
-			"top_p": requestParams.top_p,
-			"frequency_penalty": requestParams.frequency_penalty,
-			"presence_penalty": requestParams.presence_penalty,
-			"stop": requestParams.stop
-		}, options);
+			// "engine": requestParams.engine,
+			"temperature": parseFloat(requestParams.temperature),
+			"max_tokens": parseFloat(maxTokens),
+			"top_p": parseFloat(requestParams.top_p),
+			"frequency_penalty": parseFloat(requestParams.frequency_penalty),
+			"presence_penalty": parseFloat(requestParams.presence_penalty),
+			"stop": ["\n"]
+		};
+		console.log(data);
+		// return null;
+		return await axios.post(url, data, options);
 	};
 
 	const newRequest = async (url, inputText, mode) => {
@@ -98,29 +105,49 @@ function App() {
 		} else {
 			setShowPassphraseError(false);
 		}
-		console.log(process.env.REACT_APP_API_KEY);
-		console.log(options.headers.Authorization);
+		// console.log(process.env.REACT_APP_API_KEY);
+		// console.log(options.headers.Authorization);
 
-		const maxTokens = inputText.length / 4;
+		const maxTokens = Math.ceil(inputText.length / 4);
 
 
-		const prompt = `${params.summary.body}\nMessage: ${inputText}\nSummary:`;
+		const summaryPrompt = `${params.summary.body}\nMessage: ${inputText}\nSummary:`;
+		const sentimentPrompt = `${params.sentiment.body}\nMessage: ${inputText}\nSentiment:`;
+
+		// console.log(summaryPrompt);
+		// console.log(JSON.stringify(summaryPrompt));
 
 		try {
-			var summaryResponse = await executeRequest(url, options, prompt, params.summary)
+			const summaryUrl = url.replace('[ENGINE]', params.summary.engine);
+			var summaryResponse = await executeRequest(summaryUrl, options, summaryPrompt, params.summary, maxTokens)
 		} catch (err) {
 			console.error(`Error during summary request: ${url} `);
 			return false
 		} finally {
-			const data = summaryResponse.data;
-			if (mode === 2) {
-				data.split('.?!')
+			// const data = summaryResponse.data;
+			// if (mode === 2) {
+			// 	data.split('.?!')
+			// }
+			console.log(summaryResponse);
+			if (summaryResponse) {
+				handleResponse(summaryResponse, setOutputValue);
 			}
-			handleResponse(summaryResponse);
-
 		}
 
-		var sentimentResponse = await executeRequest(url, options, prompt, params.sentiment);
+		//
+		try {
+			const sentimentUrl = url.replace('[ENGINE]', params.sentiment.engine);
+			var sentimentResponse = await executeRequest(sentimentUrl, options, sentimentPrompt, params.sentiment, params.sentiment.max_tokens);
+
+		} catch (err) {
+			console.error(`Error during summary request: ${url} `);
+			return false
+		} finally {
+			console.log(sentimentResponse);
+			if (sentimentResponse) {
+				handleResponse(sentimentResponse, setSentiment);
+			}
+		}
 
 
 		// try {
@@ -139,7 +166,7 @@ function App() {
 		// 		"stop": ["\n"]
 		// 	}, options);
 		//
-		// 	handleResponse(response);
+		// 	handleSummaryResponse(response);
 		//
 		// } catch (e) {
 		// 	console.error(e);
@@ -147,10 +174,27 @@ function App() {
 
 
 	};
-	const handleResponse = response => {
-		console.log(response);
-		setOutputValue(JSON.stringify(response.data));
+	const handleResponse = (response, setter) => {
+		try {
+			console.log(response);
+			try{
+				setter(response.data.choices[0].text)
+			} catch (err) {
+				setter(JSON.stringify(response.data));
+			}
+		} catch (err) {
+			console.log(err)
+		}
 	};
+
+	// const handleSentimentResponse = response => {
+	// 	try {
+	// 		console.log(response);
+	// 		setSentiment(JSON.stringify(response.data.choices[0].text));
+	// 	} catch (err) {
+	// 		console.log(err)
+	// 	}
+	// };
 
 	return (
 		<div className="App">
@@ -181,7 +225,9 @@ function App() {
 				{showPassphraseError &&
 				<Row>
 					<Col>
-						<Alert variant='danger' onClose={() => setShowPassphraseError(false)} dismissible>
+						<Alert variant='danger'
+							   onClose={() => setShowPassphraseError(false)}
+							   dismissible>
 							Invalid passphrase.
 						</Alert>
 					</Col>
@@ -242,11 +288,18 @@ function App() {
 						</Card>
 					</Col>
 				</Row>
-				{outputValue !== '' &&
+				{outputValue !== ''  &&
 				<Row className="mb-5">
 					<Col>
-						<Card className="custom_card">
-							<Card.Body>{outputValue}</Card.Body>
+						<Card className="custom_card output_card">
+
+							<Card.Body>
+								{outputValue}
+								<br/>
+								<div className="sentiment">
+									Sentiment: {sentiment}
+								</div>
+							</Card.Body>
 						</Card>
 					</Col>
 				</Row>
