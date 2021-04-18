@@ -134,7 +134,7 @@ function App() {
 			// }
 			console.log(summaryResponse);
 			if (summaryResponse) {
-				handleResponse(summaryResponse, setOutputValue);
+				handleResponse(summaryResponse, setOutputValue, mode === '2');
 			}
 		}
 
@@ -149,7 +149,7 @@ function App() {
 		} finally {
 			console.log(sentimentResponse);
 			if (sentimentResponse) {
-				handleResponse(sentimentResponse, setSentiment);
+				handleResponse(sentimentResponse, setSentiment, false);
 			}
 		}
 
@@ -178,13 +178,24 @@ function App() {
 
 
 	};
-	const handleResponse = (response, setter) => {
+	const handleResponse = (response, setter, breakToLines) => {
 		try {
 			console.log(response);
-			try{
-				setter(response.data.choices[0].text)
+			try {
+				var value = response.data.choices[0].text
 			} catch (err) {
-				setter(JSON.stringify(response.data));
+				value = JSON.stringify(response.data);
+			} finally {
+				if (breakToLines) {
+
+					let  s = value.split('.');
+					console.log(s);
+					let j = s.join('.\n');
+					console.log(j);
+					value = j;
+				}
+				console.log(value);
+				setter(value);
 			}
 		} catch (err) {
 			console.log(err)
@@ -292,14 +303,14 @@ function App() {
 						</Card>
 					</Col>
 				</Row>
-				{outputValue !== ''  &&
+				{outputValue !== '' &&
 				<Row className="mb-5">
 					<Col>
 						<Card className="custom_card output_card">
 
 							<Card.Body>
-								{outputValue}
-								<br/>
+								{/*{outputValue}*/}
+								{outputValue.split('\n').map((item,i) => <p>{item}</p>)}
 								<div className="sentiment">
 									Sentiment: {sentiment}
 								</div>
