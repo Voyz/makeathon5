@@ -117,6 +117,10 @@ function App() {
 		// console.log(summaryPrompt);
 		// console.log(JSON.stringify(summaryPrompt));
 
+		console.log(url);
+		console.log(process.env.REACT_APP_API_URL);
+		console.log(process.env.REACT_APP_API_KEY_ENCRYPTED);
+
 		try {
 			const summaryUrl = url.replace('[ENGINE]', params.summary.engine);
 			var summaryResponse = await executeRequest(summaryUrl, options, summaryPrompt, params.summary, maxTokens)
