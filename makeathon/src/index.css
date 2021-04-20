@@ -75,3 +75,11 @@ code {
 .output_card{
     text-align:left;
 }
+
+button.btn.btn-primary,
+button.btn.btn-primary:hover,
+button.btn.btn-primary:focus{
+    background-color: var(--voice_yellow);
+    color: #111;
+    border:none;
+}
