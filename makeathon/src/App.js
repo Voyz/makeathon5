@@ -30,7 +30,7 @@ getParams().then(p => {
 	params = p;
 });
 
-console.log(CryptoJS.AES.encrypt('', 'asdf').toString());
+// console.log(CryptoJS.AES.encrypt('', 'asdf').toString());
 
 function App() {
 	const [passphrase, setPassphrase] = useState('');
@@ -41,7 +41,6 @@ function App() {
 	const [errorMessage, setErrorMessage] = useState('');
 
 
-
 	const radios = [
 		{name: 'Summary', value: '1'},
 		{name: 'List', value: '2'},
@@ -49,10 +48,10 @@ function App() {
 
 	const handleSubmit = event => {
 		event.preventDefault();
-		console.log('handleSubmit');
-		console.log(event);
-		console.log(inputValue);
-		console.log(radioValue);
+		// console.log('handleSubmit');
+		// console.log(event);
+		// console.log(inputValue);
+		// console.log(radioValue);
 		newRequest(apiUrl, inputValue, radioValue);
 	};
 	const inputChange = event => {
@@ -78,7 +77,7 @@ function App() {
 			"presence_penalty": parseFloat(requestParams.presence_penalty),
 			"stop": ["\n"]
 		};
-		console.log(data);
+		// console.log(data);
 		// return null;
 		return await axios.post(url, data, options);
 	};
@@ -113,9 +112,9 @@ function App() {
 		// console.log(summaryPrompt);
 		// console.log(JSON.stringify(summaryPrompt));
 
-		console.log(url);
-		console.log(process.env.REACT_APP_API_URL);
-		console.log(process.env.REACT_APP_API_KEY_ENCRYPTED);
+		// console.log(url);
+		// console.log(process.env.REACT_APP_API_URL);
+		// console.log(process.env.REACT_APP_API_KEY_ENCRYPTED);
 
 		try {
 			const summaryUrl = url.replace('[ENGINE]', params.summary.engine);
@@ -129,7 +128,7 @@ function App() {
 			}
 			return false
 		} finally {
-			console.log(summaryResponse);
+			// console.log(summaryResponse);
 			if (summaryResponse) {
 				handleResponse(summaryResponse, setOutputValue, mode === '2');
 			}
@@ -144,7 +143,7 @@ function App() {
 			console.error(`Error during summary request: ${url} `);
 			return false
 		} finally {
-			console.log(sentimentResponse);
+			// console.log(sentimentResponse);
 			if (sentimentResponse) {
 				handleResponse(sentimentResponse, setSentiment, false);
 			}
@@ -166,7 +165,6 @@ function App() {
 			console.log(err)
 		}
 	};
-
 
 
 	const OutputBody = () => {
@@ -220,8 +218,6 @@ function App() {
 
 			<Container fluid
 					   className="main_container">
-
-
 				<Row className="mb-4">
 					<Col>
 						<Card className="custom_card">
