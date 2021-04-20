@@ -187,15 +187,15 @@ function App() {
 			} catch (err) {
 				value = JSON.stringify(response.data);
 			} finally {
-				if (breakToLines) {
-
-					let  s = value.split('.');
-					console.log(s);
-					let j = s.join('.\n');
-					console.log(j);
-					value = j;
-				}
-				console.log(value);
+				// if (breakToLines) {
+				//
+				// 	let  s = value.split('.');
+				// 	console.log(s);
+				// 	let j = s.join('.\n');
+				// 	console.log(j);
+				// 	value = j;
+				// }
+				// console.log(value);
 				setter(value);
 			}
 		} catch (err) {
@@ -211,6 +211,16 @@ function App() {
 	// 		console.log(err)
 	// 	}
 	// };
+
+	const OutputBody = () => {
+		if (radioValue === '1') {
+			return outputValue;
+		} else {
+			const value = outputValue.split(/(.*)|(?<=[.!?\n])/g);
+			return <div className="list">{value.map((item, i) => <p>{item}</p>)}</div>;
+		}
+	};
+
 
 	return (
 		<div className="App">
@@ -244,7 +254,7 @@ function App() {
 						<Alert variant='danger'
 							   onClose={() => setShowPassphraseError(false)}
 							   dismissible>
-							Invalid passphrase.
+							Provide API key.
 						</Alert>
 					</Col>
 				</Row>
@@ -310,8 +320,11 @@ function App() {
 						<Card className="custom_card output_card">
 
 							<Card.Body>
+								<OutputBody></OutputBody>
+								{/*{mode === '1' ?*/}
 								{/*{outputValue}*/}
-								{outputValue.split('\n').map((item,i) => <p>{item}</p>)}
+								{/*: {outputValue.split('\n').map((item, i) => <p>{item}</p>)}*/}
+								{/*}*/}
 								<div className="sentiment">
 									Sentiment: {sentiment}
 								</div>
