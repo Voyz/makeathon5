@@ -39,6 +39,7 @@ function App() {
 	const [outputValue, setOutputValue] = useState('');
 	const [sentiment, setSentiment] = useState('');
 	const [radioValue, setRadioValue] = useState('1');
+	const [errorMessage, setErrorMessage] = useState('');
 
 	// const params = getPrompts();
 	// params.then(params => {
@@ -100,11 +101,13 @@ function App() {
 		};
 
 		if (options.headers.Authorization === 'Bearer ') {
-			setShowPassphraseError(true);
-			console.error('Invalid passphrase.');
+			// setShowPassphraseError(true);
+			setErrorMessage('Provide a valid API key');
+			console.error('Invalid API Key.');
 			return;
 		} else {
-			setShowPassphraseError(false);
+			// setShowPassphraseError(false);
+			setErrorMessage('');
 		}
 		// console.log(process.env.REACT_APP_API_KEY);
 		// console.log(options.headers.Authorization);
@@ -126,7 +129,12 @@ function App() {
 			const summaryUrl = url.replace('[ENGINE]', params.summary.engine);
 			var summaryResponse = await executeRequest(summaryUrl, options, summaryPrompt, params.summary, maxTokens)
 		} catch (err) {
-			console.error(`Error during summary request: ${url} `);
+			if (err.response.status === 401) {
+				console.error(`Unauthorised error during summary request: ${url} ${err}`);
+				setErrorMessage('Invalid API key.');
+			} else {
+				console.error(`Error during summary request: ${url} ${err}`);
+			}
 			return false
 		} finally {
 			// const data = summaryResponse.data;
@@ -216,8 +224,8 @@ function App() {
 		if (radioValue === '1') {
 			return outputValue;
 		} else {
-			const value = outputValue.split(/(.*)|(?<=[.!?\n])/g);
-			return <div className="list">{value.map((item, i) => <p>{item}</p>)}</div>;
+			const value = outputValue.split(/(?<=[.!?\n;])/g);
+			return <div className="list">{value.map((item, i) => <p key={i}>{item}</p>)}</div>;
 		}
 	};
 
@@ -248,13 +256,13 @@ function App() {
 						</div>
 					</Col>
 				</Row>
-				{showPassphraseError &&
+				{errorMessage !== '' &&
 				<Row>
 					<Col>
 						<Alert variant='danger'
-							   onClose={() => setShowPassphraseError(false)}
+							   onClose={() => setErrorMessage('')}
 							   dismissible>
-							Provide API key.
+							{errorMessage}
 						</Alert>
 					</Col>
 				</Row>
