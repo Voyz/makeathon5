@@ -34,18 +34,12 @@ console.log(CryptoJS.AES.encrypt('', 'asdf').toString());
 
 function App() {
 	const [passphrase, setPassphrase] = useState('');
-	const [showPassphraseError, setShowPassphraseError] = useState(false);
 	const [inputValue, setInputValue] = useState('Some text will be written here as input.');
 	const [outputValue, setOutputValue] = useState('');
 	const [sentiment, setSentiment] = useState('');
 	const [radioValue, setRadioValue] = useState('1');
 	const [errorMessage, setErrorMessage] = useState('');
 
-	// const params = getPrompts();
-	// params.then(params => {
-	// 	console.log(params.summary);
-	// 	console.log(params.sentiment);
-	// });
 
 
 	const radios = [
@@ -101,12 +95,10 @@ function App() {
 		};
 
 		if (options.headers.Authorization === 'Bearer ') {
-			// setShowPassphraseError(true);
 			setErrorMessage('Provide a valid API key');
 			console.error('Invalid API Key.');
 			return;
 		} else {
-			// setShowPassphraseError(false);
 			setErrorMessage('');
 		}
 		// console.log(process.env.REACT_APP_API_KEY);
@@ -137,10 +129,6 @@ function App() {
 			}
 			return false
 		} finally {
-			// const data = summaryResponse.data;
-			// if (mode === 2) {
-			// 	data.split('.?!')
-			// }
 			console.log(summaryResponse);
 			if (summaryResponse) {
 				handleResponse(summaryResponse, setOutputValue, mode === '2');
@@ -162,30 +150,6 @@ function App() {
 			}
 		}
 
-
-		// try {
-		// 	// const response = await axios.post(url,{
-		// 	// 	inputText: inputText,
-		// 	// 	mode: mode
-		// 	// }, options);
-		// 	const response = await axios.post(url, {
-		// 		"prompt": inputText,
-		// 		"engine": "davinci",
-		// 		"temperature": 0.25,
-		// 		"max_tokens": 120,
-		// 		"top_p": 1,
-		// 		"frequency_penalty": 0.4,
-		// 		"presence_penalty": 0,
-		// 		"stop": ["\n"]
-		// 	}, options);
-		//
-		// 	handleSummaryResponse(response);
-		//
-		// } catch (e) {
-		// 	console.error(e);
-		// }
-
-
 	};
 	const handleResponse = (response, setter, breakToLines) => {
 		try {
@@ -195,15 +159,7 @@ function App() {
 			} catch (err) {
 				value = JSON.stringify(response.data);
 			} finally {
-				// if (breakToLines) {
-				//
-				// 	let  s = value.split('.');
-				// 	console.log(s);
-				// 	let j = s.join('.\n');
-				// 	console.log(j);
-				// 	value = j;
-				// }
-				// console.log(value);
+
 				setter(value);
 			}
 		} catch (err) {
@@ -211,14 +167,7 @@ function App() {
 		}
 	};
 
-	// const handleSentimentResponse = response => {
-	// 	try {
-	// 		console.log(response);
-	// 		setSentiment(JSON.stringify(response.data.choices[0].text));
-	// 	} catch (err) {
-	// 		console.log(err)
-	// 	}
-	// };
+
 
 	const OutputBody = () => {
 		if (radioValue === '1') {
@@ -271,13 +220,7 @@ function App() {
 
 			<Container fluid
 					   className="main_container">
-				{/*<Row>*/}
-				{/*	<Col>*/}
-				{/*		<img src="/gpteam5_logo.png"*/}
-				{/*			 className="roundedCircle team_logo"*/}
-				{/*			 alt="team_logo"/>*/}
-				{/*	</Col>*/}
-				{/*</Row>*/}
+
 
 				<Row className="mb-4">
 					<Col>
@@ -329,10 +272,6 @@ function App() {
 
 							<Card.Body>
 								<OutputBody></OutputBody>
-								{/*{mode === '1' ?*/}
-								{/*{outputValue}*/}
-								{/*: {outputValue.split('\n').map((item, i) => <p>{item}</p>)}*/}
-								{/*}*/}
 								<div className="sentiment">
 									Sentiment: {sentiment}
 								</div>
