@@ -84,6 +84,10 @@ function App() {
 
 	const newRequest = async (url, inputText, mode) => {
 		console.log('Request:', inputText, mode);
+		if (inputText === '') {
+			setErrorMessage('Provide text to summarise.');
+			return false;
+		}
 
 		const options = {
 			headers: {
