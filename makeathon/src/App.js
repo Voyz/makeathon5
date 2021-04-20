@@ -20,17 +20,17 @@ import Alert from 'react-bootstrap/Alert';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'https://jsonplaceholder.typicode.com/posts';
+const apiUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'https://jsonplaceholder.typicode.com/posts';
 
 // const apiUrl = 'https://api.openai.com/v1/engines/[ENGINE]/completions';
-const apiUrl = 'https://jsonplaceholder.typicode.com/posts?[ENGINE]';
+// const apiUrl = 'https://jsonplaceholder.typicode.com/posts?[ENGINE]';
 
 let params = null;
 getParams().then(p => {
 	params = p;
 });
 
-// console.log(CryptoJS.AES.encrypt('oiregnierngweronrg', 'asdf').toString());
+console.log(CryptoJS.AES.encrypt('', 'asdf').toString());
 
 function App() {
 	const [passphrase, setPassphrase] = useState('');
@@ -94,7 +94,8 @@ function App() {
 		const options = {
 			headers: {
 				'Content-type': 'application/json; charset=UTF-8',
-				'Authorization': `Bearer ${decodeApiKey(process.env.REACT_APP_API_KEY_ENCRYPTED)}`
+				// 'Authorization': `Bearer ${decodeApiKey(process.env.REACT_APP_API_KEY_ENCRYPTED)}`
+				'Authorization': `Bearer ${passphrase}`
 			}
 		};
 
@@ -213,7 +214,7 @@ function App() {
 							<InputGroup size="sm"
 										className="">
 								<InputGroup.Prepend>
-									<InputGroup.Text id="inputGroup-sizing-sm">Passphrase</InputGroup.Text>
+									<InputGroup.Text id="inputGroup-sizing-sm">API Key</InputGroup.Text>
 								</InputGroup.Prepend>
 								<FormControl aria-label="Small"
 											 aria-describedby="inputGroup-sizing-sm"
